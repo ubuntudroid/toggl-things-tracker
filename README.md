@@ -1,5 +1,5 @@
 # toggl-things-tracker
-Android Things app for tracking your workday via Toggl. Displays today's worked time and plays a well-known chime after 8 hours to remind you to wrap things up.
+Android Things app for tracking your workday via [Toggl](https://www.toggl.com/). Displays today's worked time and plays a well-known chime after 8 hours to remind you to wrap things up.
 
 # Prerequisites
 
@@ -32,7 +32,7 @@ org.gradle.jvmargs=-Xmx1536m
 # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
 # org.gradle.parallel=true
 
-# The toggl API token
+# Toggl data
 togglToken=<insert toggl token here>
 togglWorkspaceId=<insert toggl workspace ID here>
 togglUserId=<insert toggl user ID here>
