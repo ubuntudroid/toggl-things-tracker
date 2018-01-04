@@ -47,34 +47,7 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
                 if (!playedAlarm) {
                     playedAlarm = true
                     try {
-                        speaker?.apply {
-                            launch {
-                                play(415.30)
-                                delay(400)
-                                speaker?.stop()
-                                play(329.63)
-                                delay(400)
-                                speaker?.stop()
-                                play(369.99)
-                                delay(400)
-                                speaker?.stop()
-                                play(246.94)
-                                delay(400)
-                                speaker?.stop()
-                                play(246.94)
-                                delay(400)
-                                speaker?.stop()
-                                play(369.99)
-                                delay(400)
-                                speaker?.stop()
-                                play(415.30)
-                                delay(400)
-                                speaker?.stop()
-                                play(329.63)
-                                delay(400)
-                                speaker?.stop()
-                            }
-                        }
+                        playChime()
                     } catch (e: IOException) {
                         Log.e(TAG, "Error playing sound on speaker", e)
                     }
@@ -103,6 +76,37 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
         val totalGrandMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrand) % 60
 
         return Update(String.format("%02d.%02d", totalGrandHours, totalGrandMinutes), totalGrandHours >= WORK_DAY_HOURS)
+    }
+
+    private fun playChime() {
+        speaker?.apply {
+            launch {
+                play(415.30)
+                delay(400)
+                speaker?.stop()
+                play(329.63)
+                delay(400)
+                speaker?.stop()
+                play(369.99)
+                delay(400)
+                speaker?.stop()
+                play(246.94)
+                delay(400)
+                speaker?.stop()
+                play(246.94)
+                delay(400)
+                speaker?.stop()
+                play(369.99)
+                delay(400)
+                speaker?.stop()
+                play(415.30)
+                delay(400)
+                speaker?.stop()
+                play(329.63)
+                delay(400)
+                speaker?.stop()
+            }
+        }
     }
 
     inner class RefreshTimer : CountDownTimer(Long.MAX_VALUE, REFRESH_RATE_MS) {
