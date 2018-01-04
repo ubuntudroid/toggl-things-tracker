@@ -81,30 +81,12 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
     private fun playChime() {
         speaker?.apply {
             launch {
-                play(415.30)
-                delay(400)
-                speaker?.stop()
-                play(329.63)
-                delay(400)
-                speaker?.stop()
-                play(369.99)
-                delay(400)
-                speaker?.stop()
-                play(246.94)
-                delay(400)
-                speaker?.stop()
-                play(246.94)
-                delay(400)
-                speaker?.stop()
-                play(369.99)
-                delay(400)
-                speaker?.stop()
-                play(415.30)
-                delay(400)
-                speaker?.stop()
-                play(329.63)
-                delay(400)
-                speaker?.stop()
+                val chime = arrayOf(415.30, 329.63, 369.99, 246.94, 246.94, 369.99, 415.30, 329.63)
+                chime.forEach {
+                    play(it)
+                    delay(400)
+                }
+                stop()
             }
         }
     }
