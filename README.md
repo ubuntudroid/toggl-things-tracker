@@ -1,6 +1,8 @@
 # toggl-things-tracker
 Android Things app for tracking your workday via [Toggl](https://www.toggl.com/). Displays today's worked time and plays a well-known chime as well as switches on an LED after 8 hours to remind you to wrap things up.
 
+![Demo](assets/demo.gif)
+
 # Prerequisites
 
 - Android Things compatible board (see https://developer.android.com/things/hardware/index.html: Raspberry Pi 3, NXP Pico i.MX7D, NXP Pico i.MX6UL)
