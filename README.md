@@ -1,5 +1,5 @@
 # toggl-things-tracker
-Android Things app for tracking your workday via [Toggl](https://www.toggl.com/). Displays today's worked time and plays a well-known chime after 8 hours to remind you to wrap things up.
+Android Things app for tracking your workday via [Toggl](https://www.toggl.com/). Displays today's worked time and plays a well-known chime as well as switches on an LED after 8 hours to remind you to wrap things up.
 
 # Prerequisites
 
@@ -7,6 +7,7 @@ Android Things app for tracking your workday via [Toggl](https://www.toggl.com/)
 - optional (but strongly recommended, the code will run without, but you won't see anything. Consider using a Pimoroni Rainbow HAT.): 
     - buzzer
     - alphanumeric displays
+    - LED
 
 # Setup
 
@@ -41,4 +42,4 @@ togglUserId=<insert toggl user ID here>
 The Toggl data is used to retrieve your time entries for the current day.
 
 2. Then install the APK onto the device (you might need to restart the device after first installation as permissions might not get picked up properly - this is a known bug on the Android Things platform).
-3. The alphanumeric display shows the total amount tracked today (HH.MM). After 8 hours a chime will play via the buzzer to remind you to refuel your batteries. Data is refreshed every minute.
+3. The alphanumeric display shows the total amount tracked today (HH.MM). After 8 hours a chime will play via the buzzer and the LED will switch on to remind you to refuel your batteries. Data is refreshed every minute.
