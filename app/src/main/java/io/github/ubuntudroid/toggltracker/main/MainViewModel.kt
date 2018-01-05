@@ -1,6 +1,8 @@
 package io.github.ubuntudroid.toggltracker.main
 
+import android.databinding.ObservableField
 import android.os.CountDownTimer
+import android.text.TextUtils
 import android.util.Log
 import com.google.android.things.contrib.driver.ht16k33.AlphanumericDisplay
 import com.google.android.things.contrib.driver.pwmspeaker.Speaker
@@ -13,11 +15,14 @@ import javax.inject.Inject
 
 private const val WORK_DAY_HOURS = 8
 private const val REFRESH_RATE_MS = 60*1000L
-private const val TAG = "MainPresenter"
+private const val TAG = "MainViewModel"
 
-class MainPresenter @Inject constructor(private val togglRepository: TogglRepository) {
+class MainViewModel @Inject constructor(private val togglRepository: TogglRepository) {
+
+    var currentEntry: ObservableField<String> = ObservableField("No tracking at the moment...")
 
     private val refreshTimer = RefreshTimer()
+
     private var display: AlphanumericDisplay? = null
     private var speaker: Speaker? = null
     private var led: Gpio? = null
@@ -62,6 +67,12 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
                 led?.value = false
                 playedAlarm = false
             }
+
+            if (!TextUtils.isEmpty(update.currentEntryDescription)) {
+                currentEntry.set(update.currentEntryDescription)
+            } else {
+                currentEntry.set("No tracking at the moment...")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error requesting data from toggl", e)
         }
@@ -82,7 +93,12 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
         val totalGrandHours = TimeUnit.MILLISECONDS.toHours(totalGrand)
         val totalGrandMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrand) % 60
 
-        return Update(String.format("%02d.%02d", totalGrandHours, totalGrandMinutes), totalGrandHours >= WORK_DAY_HOURS)
+
+        return Update(
+                String.format("%02d.%02d", totalGrandHours, totalGrandMinutes),
+                totalGrandHours >= WORK_DAY_HOURS,
+                currentTimeEntry.data?.description
+        )
     }
 
     private fun playChime() {
@@ -117,5 +133,6 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
 
 private data class Update(
         val message: String,
-        val overtime: Boolean
+        val overtime: Boolean,
+        val currentEntryDescription: String?
 )

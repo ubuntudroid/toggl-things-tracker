@@ -1,6 +1,7 @@
 package io.github.ubuntudroid.toggltracker.main
 
 import android.app.Activity
+import android.databinding.DataBindingUtil
 
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import com.google.android.things.pio.Gpio
 import com.google.android.things.pio.PeripheralManagerService
 import dagger.android.AndroidInjection
 import io.github.ubuntudroid.toggltracker.R
+import io.github.ubuntudroid.toggltracker.databinding.ActivityMainBinding
 import io.github.ubuntudroid.toggltracker.iot.BoardDefaults
 import java.io.IOException
 import javax.inject.Inject
@@ -19,7 +21,7 @@ private const val TAG = "MainActivity"
 class MainActivity : Activity() {
 
     @Inject
-    lateinit var mainPresenter: MainPresenter
+    lateinit var mainViewModel: MainViewModel
 
     private var display: AlphanumericDisplay? = null
     private var speaker: Speaker? = null
@@ -28,7 +30,8 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+        binding.vm = mainViewModel
 
         display = try {
             AlphanumericDisplay(BoardDefaults.i2cBus).apply {
@@ -60,13 +63,13 @@ class MainActivity : Activity() {
             null
         }
 
-        mainPresenter.start(display, speaker, led)
+        mainViewModel.start(display, speaker, led)
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        mainPresenter.stop()
+        mainViewModel.stop()
 
         display?.apply {
             try {
