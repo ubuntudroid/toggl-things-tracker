@@ -4,6 +4,7 @@ import android.os.CountDownTimer
 import android.util.Log
 import com.google.android.things.contrib.driver.ht16k33.AlphanumericDisplay
 import com.google.android.things.contrib.driver.pwmspeaker.Speaker
+import com.google.android.things.pio.Gpio
 import io.github.ubuntudroid.toggltracker.TogglRepository
 import kotlinx.coroutines.experimental.*
 import java.io.IOException
@@ -19,18 +20,21 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
     private val refreshTimer = RefreshTimer()
     private var display: AlphanumericDisplay? = null
     private var speaker: Speaker? = null
+    private var led: Gpio? = null
 
     private var playedAlarm = false
 
-    fun start(display: AlphanumericDisplay?, speaker: Speaker?) {
+    fun start(display: AlphanumericDisplay?, speaker: Speaker?, led: Gpio?) {
         this.display = display
         this.speaker = speaker
+        this.led = led
         refreshTimer.start()
     }
 
     fun stop() {
         this.display = null
         this.speaker = null
+        this.led = null
         refreshTimer.cancel()
     }
 
@@ -43,7 +47,9 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
                 Log.e(TAG, "Error displaying $update on display", e)
             }
 
-            if (update.playSound) {
+            if (update.overtime) {
+                led?.value = true
+
                 if (!playedAlarm) {
                     playedAlarm = true
                     try {
@@ -53,6 +59,7 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
                     }
                 }
             } else {
+                led?.value = false
                 playedAlarm = false
             }
         } catch (e: Exception) {
@@ -110,5 +117,5 @@ class MainPresenter @Inject constructor(private val togglRepository: TogglReposi
 
 private data class Update(
         val message: String,
-        val playSound: Boolean
+        val overtime: Boolean
 )

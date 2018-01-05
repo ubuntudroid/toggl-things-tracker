@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import com.google.android.things.contrib.driver.ht16k33.AlphanumericDisplay
 import com.google.android.things.contrib.driver.pwmspeaker.Speaker
+import com.google.android.things.pio.Gpio
+import com.google.android.things.pio.PeripheralManagerService
 import dagger.android.AndroidInjection
 import io.github.ubuntudroid.toggltracker.R
 import io.github.ubuntudroid.toggltracker.iot.BoardDefaults
@@ -21,6 +23,7 @@ class MainActivity : Activity() {
 
     private var display: AlphanumericDisplay? = null
     private var speaker: Speaker? = null
+    private var led: Gpio? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -39,14 +42,25 @@ class MainActivity : Activity() {
         }
 
         speaker = try {
-            Speaker(BoardDefaults.speakerPwmPin).apply { stop() }
+            Speaker(BoardDefaults.speakerPwmPin)
+                    .apply { stop() }
         } catch (e: IOException) {
             Log.e(TAG, "Error initialising speaker", e)
             Log.d(TAG, "Disabling speaker")
             null
         }
 
-        mainPresenter.start(display, speaker)
+        val pioService = PeripheralManagerService()
+        led = try {
+            pioService.openGpio(BoardDefaults.ledGpioPin)
+                    .apply { setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW) }
+        } catch (e: IOException) {
+            Log.e(TAG, "Error initialising LED", e)
+            Log.d(TAG, "Disabling LED")
+            null
+        }
+
+        mainPresenter.start(display, speaker, led)
     }
 
     override fun onDestroy() {
@@ -74,6 +88,16 @@ class MainActivity : Activity() {
                 Log.e(TAG, "Error disabling speaker", e)
             } finally {
                 speaker = null
+            }
+        }
+
+        led?.apply {
+            try {
+                close()
+            } catch (e: IOException) {
+                Log.e(TAG, "Error disabling LED", e)
+            } finally {
+                led = null
             }
         }
     }
