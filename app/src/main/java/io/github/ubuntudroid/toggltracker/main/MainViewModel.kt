@@ -20,6 +20,7 @@ private const val TAG = "MainViewModel"
 class MainViewModel @Inject constructor(private val togglRepository: TogglRepository) {
 
     var currentEntry: ObservableField<String> = ObservableField("No tracking at the moment...")
+    var weekTotal: ObservableField<String> = ObservableField("Retrieving week total...")
 
     private val refreshTimer = RefreshTimer()
 
@@ -47,7 +48,7 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
         try {
             val update = getUpdate()
             try {
-                display?.display(update.message)
+                display?.display(update.todayTime)
             } catch (e: IOException) {
                 Log.e(TAG, "Error displaying $update on display", e)
             }
@@ -73,30 +74,38 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
             } else {
                 currentEntry.set("No tracking at the moment...")
             }
+            weekTotal.set(update.weekTime)
         } catch (e: Exception) {
             Log.e(TAG, "Error requesting data from toggl", e)
         }
     }
 
     private suspend fun getUpdate(): Update {
-        val summary = togglRepository.getSummaryForToday()
-        var totalGrand = 0L
+        val summaryToday = togglRepository.getSummaryForToday()
+        val summaryWeek = togglRepository.getSummaryForThisWeek()
+        var totalGrandToday = 0L
+        var totalGrandWeek = 0L
 
         val currentTimeEntry = togglRepository.getCurrentTimeEntry().await()
         currentTimeEntry.data?.let {
             if (it.stop == null) {
-                totalGrand += System.currentTimeMillis() + (currentTimeEntry.data.duration) * 1000
+                val currentEntry = System.currentTimeMillis() + (currentTimeEntry.data.duration) * 1000
+                totalGrandToday += currentEntry
+                totalGrandWeek += currentEntry
             }
         }
-        totalGrand += summary.await().totalGrand
+        totalGrandToday += summaryToday.await().totalGrand
+        totalGrandWeek += summaryWeek.await().totalGrand
 
-        val totalGrandHours = TimeUnit.MILLISECONDS.toHours(totalGrand)
-        val totalGrandMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrand) % 60
-
+        val totalGrandTodayHours = TimeUnit.MILLISECONDS.toHours(totalGrandToday)
+        val totalGrandTodayMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrandToday) % 60
+        val totalGrandWeekHours = TimeUnit.MILLISECONDS.toHours(totalGrandWeek)
+        val totalGrandWeekMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrandWeek) % 60
 
         return Update(
-                String.format("%02d.%02d", totalGrandHours, totalGrandMinutes),
-                totalGrandHours >= WORK_DAY_HOURS,
+                String.format("%02d.%02d", totalGrandTodayHours, totalGrandTodayMinutes),
+                String.format("%02d:%02d", totalGrandWeekHours, totalGrandWeekMinutes),
+                totalGrandTodayHours >= WORK_DAY_HOURS,
                 currentTimeEntry.data?.description
         )
     }
@@ -132,7 +141,8 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
 }
 
 private data class Update(
-        val message: String,
+        val todayTime: String,
+        val weekTime: String,
         val overtime: Boolean,
         val currentEntryDescription: String?
 )

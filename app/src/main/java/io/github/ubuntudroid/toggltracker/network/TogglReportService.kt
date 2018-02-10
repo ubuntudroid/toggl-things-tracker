@@ -5,6 +5,9 @@ import kotlinx.coroutines.experimental.Deferred
 import retrofit2.http.GET
 import retrofit2.http.Query
 
+/**
+ * See https://github.com/toggl/toggl_api_docs for a description of the endpoints.
+ */
 interface TogglReportService {
     /**
      * Requests the aggregated time entries data for the given timeframe from [since] to [until]
