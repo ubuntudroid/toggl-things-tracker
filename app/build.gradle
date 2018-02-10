@@ -46,7 +46,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'com.android.support:support-annotations:27.0.2'
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    kapt 'com.android.databinding:compiler:3.0.1'
+    kapt "com.android.databinding:compiler:$android_gradle_plugin_version"
 
     compileOnly 'com.google.android.things:androidthings:+'
     implementation('com.google.android.things.contrib:driver-ht16k33:0.4') {
