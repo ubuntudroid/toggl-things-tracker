@@ -10,7 +10,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "io.github.ubuntudroid.toggltracker"
-        minSdkVersion 24
+        minSdkVersion 26
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -49,10 +49,10 @@ dependencies {
     kapt "com.android.databinding:compiler:$android_gradle_plugin_version"
 
     compileOnly 'com.google.android.things:androidthings:+'
-    implementation('com.google.android.things.contrib:driver-ht16k33:0.4') {
+    implementation('com.google.android.things.contrib:driver-ht16k33:0.5') {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-    implementation('com.google.android.things.contrib:driver-pwmspeaker:0.3') {
+    implementation('com.google.android.things.contrib:driver-pwmspeaker:0.4') {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
 

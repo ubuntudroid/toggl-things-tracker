@@ -6,7 +6,7 @@ If your board has a full-blown display attached it will show the currently track
 
 # Prerequisites
 
-- Android Things compatible board (see https://developer.android.com/things/hardware/index.html: Raspberry Pi 3, NXP Pico i.MX7D, NXP Pico i.MX6UL)
+- Android Things compatible board (see https://developer.android.com/things/hardware/index.html: Raspberry Pi 3, NXP Pico i.MX7D, NXP Pico i.MX6UL) with developer preview 7
 - optional (but strongly recommended, the code will run without, but you won't see anything. Consider using a Pimoroni Rainbow HAT.): 
     - buzzer
     - alphanumeric displays
@@ -46,8 +46,8 @@ togglUserId=<insert toggl user ID here>
 The Toggl data is used to retrieve your time entries for the current day.
 
 2. Then install the APK onto the device (you might need to restart the device after first installation as permissions might not get picked up properly - this is a known bug on the Android Things platform).
-3. The alphanumeric display shows the total amount tracked today (HH.MM). After 8 hours a chime will play via the buzzer and the LED will switch on to remind you to refuel your batteries. The currently tracked time entry as well as the total week time will be shown on the display. Data is refreshed every minute.
+3. The alphanumeric display shows the total amount tracked today (HH.MM). After 8 hours a chime will play via the buzzer and the LED will switch on to remind you to refuel your batteries. The currently tracked time entry as well as the total week time and the week total goal for the current day (fraction of the total work time which is 5*8 hours by default) will be shown on the display. Data is refreshed every minute.
 
 # Tips for connecting the Pico to your host computer
-- if you want to connect the Pico to a MacBook Pro with USB-C only connectors and  you want to use a USB-A (Macboook Pro via adapter) to USB-C (Pico direct) connector cable: don't one of these a simple USB-A to USB-C adapter for connecting the cable to your Macbook. The Pico won't boot. Use the bulky 3-in-1 (HDMI, USB-C, USB-A) adapter instead as the others don't pull enough power to power the Pico. For me this was the only one to work.
+- if you want to connect the Pico to a MacBook Pro with USB-C only connectors and you want to use a USB-A (Macboook Pro via adapter) to USB-C (Pico direct) connector cable: don't one of these a simple USB-A to USB-C adapter for connecting the cable to your Macbook. The Pico won't boot. Use the bulky 3-in-1 (HDMI, USB-C, USB-A) adapter instead as the others don't pull enough power to power the Pico. For me this was the only one to work.
 - don't use USB-C as a power source and USB-A for adb, in most cases this won't work at all

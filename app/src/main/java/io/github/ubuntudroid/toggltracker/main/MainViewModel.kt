@@ -1,6 +1,7 @@
 package io.github.ubuntudroid.toggltracker.main
 
 import android.databinding.ObservableField
+import android.databinding.ObservableInt
 import android.os.CountDownTimer
 import android.text.TextUtils
 import android.util.Log
@@ -10,6 +11,8 @@ import com.google.android.things.pio.Gpio
 import io.github.ubuntudroid.toggltracker.TogglRepository
 import kotlinx.coroutines.experimental.*
 import java.io.IOException
+import java.util.*
+import java.util.Calendar.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -21,6 +24,7 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
 
     var currentEntry: ObservableField<String> = ObservableField("No tracking at the moment...")
     var weekTotal: ObservableField<String> = ObservableField("Retrieving week total...")
+    var eodGoal: ObservableField<String> = ObservableField("Calculating EOD goal...")
 
     private val refreshTimer = RefreshTimer()
 
@@ -75,6 +79,7 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
                 currentEntry.set("No tracking at the moment...")
             }
             weekTotal.set(update.weekTime)
+            eodGoal.set(update.eodGoal + "h")
         } catch (e: Exception) {
             Log.e(TAG, "Error requesting data from toggl", e)
         }
@@ -106,8 +111,27 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
                 String.format("%02d.%02d", totalGrandTodayHours, totalGrandTodayMinutes),
                 String.format("%02d:%02d", totalGrandWeekHours, totalGrandWeekMinutes),
                 totalGrandTodayHours >= WORK_DAY_HOURS,
-                currentTimeEntry.data?.description
+                currentTimeEntry.data?.description,
+                getEodGoal()
         )
+    }
+
+    private fun getEodGoal(): String {
+        Calendar.getInstance().apply {
+            time = Date()
+        }.let {
+            val dayOfWeek = it.get(Calendar.DAY_OF_WEEK) // starts with SUNDAY = 1
+
+            // calculate the daily goal by week days - e.g on Tuesday that would be 2 * WORK_DAY_HOURS
+            val eodGoalHours = when (dayOfWeek) {
+                SATURDAY -> WORK_DAY_HOURS * (FRIDAY - 1)
+                MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY -> WORK_DAY_HOURS * dayOfWeek - 1
+                SUNDAY -> if (it.firstDayOfWeek == SUNDAY) 0 else WORK_DAY_HOURS * (FRIDAY - 1)
+                else -> -1
+            }
+
+            return "$eodGoalHours"
+        }
     }
 
     private fun playChime() {
@@ -144,5 +168,6 @@ private data class Update(
         val todayTime: String,
         val weekTime: String,
         val overtime: Boolean,
-        val currentEntryDescription: String?
+        val currentEntryDescription: String?,
+        val eodGoal: String
 )

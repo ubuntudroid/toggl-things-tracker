@@ -37,7 +37,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{vm.weekTotal}"
+            android:text="@{vm.weekTotal + ` (` + vm.eodGoal + `)`}"
             android:textSize="24sp"
             app:layout_constraintBottom_toTopOf="@+id/day_total"
             app:layout_constraintEnd_toEndOf="parent"

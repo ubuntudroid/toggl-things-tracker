@@ -8,7 +8,7 @@ import android.util.Log
 import com.google.android.things.contrib.driver.ht16k33.AlphanumericDisplay
 import com.google.android.things.contrib.driver.pwmspeaker.Speaker
 import com.google.android.things.pio.Gpio
-import com.google.android.things.pio.PeripheralManagerService
+import com.google.android.things.pio.PeripheralManager
 import dagger.android.AndroidInjection
 import io.github.ubuntudroid.toggltracker.R
 import io.github.ubuntudroid.toggltracker.databinding.ActivityMainBinding
@@ -53,7 +53,7 @@ class MainActivity : Activity() {
             null
         }
 
-        val pioService = PeripheralManagerService()
+        val pioService = PeripheralManager.getInstance()
         led = try {
             pioService.openGpio(BoardDefaults.ledGpioPin)
                     .apply { setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW) }
