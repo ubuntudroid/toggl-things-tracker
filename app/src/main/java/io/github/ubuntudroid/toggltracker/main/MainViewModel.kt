@@ -125,7 +125,7 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
             // calculate the daily goal by week days - e.g on Tuesday that would be 2 * WORK_DAY_HOURS
             val eodGoalHours = when (dayOfWeek) {
                 SATURDAY -> WORK_DAY_HOURS * (FRIDAY - 1)
-                MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY -> WORK_DAY_HOURS * dayOfWeek - 1
+                MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY -> WORK_DAY_HOURS * (dayOfWeek - 1)
                 SUNDAY -> if (it.firstDayOfWeek == SUNDAY) 0 else WORK_DAY_HOURS * (FRIDAY - 1)
                 else -> -1
             }
