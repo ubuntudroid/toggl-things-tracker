@@ -1,4 +1,4 @@
-package io.github.ubuntudroid.toggltracker.network
+package io.github.ubuntudroid.toggltracker.network.toggl
 
 import okhttp3.Interceptor
 import okhttp3.Response

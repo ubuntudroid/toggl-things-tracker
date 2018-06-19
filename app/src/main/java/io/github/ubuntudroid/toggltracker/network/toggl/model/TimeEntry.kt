@@ -1,4 +1,4 @@
-package io.github.ubuntudroid.toggltracker.network.model
+package io.github.ubuntudroid.toggltracker.network.toggl.model
 
 import java.util.Date
 

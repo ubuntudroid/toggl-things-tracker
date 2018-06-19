@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import io.github.ubuntudroid.toggltracker.di.qualifiers.Reports
 import io.github.ubuntudroid.toggltracker.di.qualifiers.TimeEntries
-import io.github.ubuntudroid.toggltracker.network.TogglReportService
-import io.github.ubuntudroid.toggltracker.network.TogglTimeEntriesService
+import io.github.ubuntudroid.toggltracker.network.toggl.TogglReportService
+import io.github.ubuntudroid.toggltracker.network.toggl.TogglTimeEntriesService
 import retrofit2.Retrofit
 
 @Module

@@ -16,11 +16,27 @@
         tools:context="io.github.ubuntudroid.toggltracker.main.MainActivity">
 
         <TextView
-            android:id="@+id/day_total"
+            android:id="@+id/totalTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{`Total: ` + vm.weekTotal + ` (` + vm.eodGoal + `)`}"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Total: 18:02 (16h)"/>
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:text="@{vm.currentEntry}"
             android:textSize="30sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -30,20 +46,20 @@
             tools:text="asdöjlajewlfj dsöla fj fkj aöja djsasjöa sjdj i ejdj ajöjdai j eöj adjiadöj ajöd fjaföjd klds dadf" />
 
         <TextView
-            android:id="@+id/week_total"
+            android:id="@+id/currentTaskTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{vm.weekTotal + ` (` + vm.eodGoal + `)`}"
+            android:text="@{`Current: ` + vm.currentSpent + ` (` + vm.currentEstimate + `)`}"
             android:textSize="24sp"
-            app:layout_constraintBottom_toTopOf="@+id/day_total"
+            app:layout_constraintTop_toBottomOf="@+id/description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="42:42"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Current: 0:44 (2:00)"/>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

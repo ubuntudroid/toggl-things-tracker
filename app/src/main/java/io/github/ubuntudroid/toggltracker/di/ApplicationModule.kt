@@ -7,6 +7,6 @@ import io.github.ubuntudroid.toggltracker.main.MainActivity
 @Module
 abstract class ApplicationModule {
 
-    @ContributesAndroidInjector(modules = [TogglModule::class, NetworkModule::class])
+    @ContributesAndroidInjector(modules = [TogglModule::class, JiraModule::class, NetworkModule::class])
     abstract fun contributeActivityInjector(): MainActivity
 }

@@ -8,6 +8,7 @@ import android.util.Log
 import com.google.android.things.contrib.driver.ht16k33.AlphanumericDisplay
 import com.google.android.things.contrib.driver.pwmspeaker.Speaker
 import com.google.android.things.pio.Gpio
+import io.github.ubuntudroid.toggltracker.JiraRepository
 import io.github.ubuntudroid.toggltracker.TogglRepository
 import kotlinx.coroutines.experimental.*
 import java.io.IOException
@@ -19,12 +20,18 @@ import javax.inject.Inject
 private const val WORK_DAY_HOURS = 8
 private const val REFRESH_RATE_MS = 60*1000L
 private const val TAG = "MainViewModel"
+private val issueIdRegex = """((?<!([A-Za-z]{1,10})-?)[A-Z]+-\d+)""".toRegex()
 
-class MainViewModel @Inject constructor(private val togglRepository: TogglRepository) {
+class MainViewModel @Inject constructor(
+        private val togglRepository: TogglRepository,
+        private val jiraRepository: JiraRepository
+) {
 
     var currentEntry: ObservableField<String> = ObservableField("No tracking at the moment...")
     var weekTotal: ObservableField<String> = ObservableField("Retrieving week total...")
     var eodGoal: ObservableField<String> = ObservableField("Calculating EOD goal...")
+    var currentSpent: ObservableField<String> = ObservableField("0:00")
+    var currentEstimate: ObservableField<String> = ObservableField("0:00")
 
     private val refreshTimer = RefreshTimer()
 
@@ -80,6 +87,8 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
             }
             weekTotal.set(update.weekTime)
             eodGoal.set(update.eodGoal + "h")
+            currentEstimate.set(update.originalEstimate)
+            currentSpent.set(update.timeSpent)
         } catch (e: Exception) {
             Log.e(TAG, "Error requesting data from toggl", e)
         }
@@ -90,6 +99,7 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
         val summaryWeek = togglRepository.getSummaryForThisWeek()
         var totalGrandToday = 0L
         var totalGrandWeek = 0L
+        var timeSpent = 0L
 
         val currentTimeEntry = togglRepository.getCurrentTimeEntry().await()
         currentTimeEntry.data?.let {
@@ -97,22 +107,39 @@ class MainViewModel @Inject constructor(private val togglRepository: TogglReposi
                 val currentEntry = System.currentTimeMillis() + (currentTimeEntry.data.duration) * 1000
                 totalGrandToday += currentEntry
                 totalGrandWeek += currentEntry
+                timeSpent += currentEntry / 1000
             }
         }
         totalGrandToday += summaryToday.await().totalGrand
         totalGrandWeek += summaryWeek.await().totalGrand
 
+        val issueId = issueIdRegex.find(currentTimeEntry.data?.description.toString())
+
+        val currentIssue = issueId?.let { jiraRepository.getIssue(it.value).await() }
+        timeSpent += currentIssue?.fields?.aggregatetimespent ?: 0
+
         val totalGrandTodayHours = TimeUnit.MILLISECONDS.toHours(totalGrandToday)
         val totalGrandTodayMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrandToday) % 60
         val totalGrandWeekHours = TimeUnit.MILLISECONDS.toHours(totalGrandWeek)
         val totalGrandWeekMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrandWeek) % 60
+        val currentIssueEstimatedHours = currentIssue?.fields?.aggregatetimeoriginalestimate?.toLong()?.let {
+            TimeUnit.SECONDS.toHours(it)
+        } ?: 0
+        val currentIssueEstimatedMinutes = currentIssue?.fields?.aggregatetimeoriginalestimate?.toLong()?.let {
+            TimeUnit.SECONDS.toMinutes(it) % 60
+        } ?: 0
+
+        val currentIssueSpentHours = TimeUnit.SECONDS.toHours(timeSpent)
+        val currentIssueSpentMinutes = TimeUnit.SECONDS.toMinutes(timeSpent) % 60
 
         return Update(
-                String.format("%02d.%02d", totalGrandTodayHours, totalGrandTodayMinutes),
+                String.format("%02d:%02d", totalGrandTodayHours, totalGrandTodayMinutes),
                 String.format("%02d:%02d", totalGrandWeekHours, totalGrandWeekMinutes),
                 totalGrandTodayHours >= WORK_DAY_HOURS,
                 currentTimeEntry.data?.description,
-                getEodGoal()
+                getEodGoal(),
+                String.format("%02d:%02d", currentIssueEstimatedHours, currentIssueEstimatedMinutes),
+                String.format("%02d:%02d", currentIssueSpentHours, currentIssueSpentMinutes)
         )
     }
 
@@ -169,5 +196,7 @@ private data class Update(
         val weekTime: String,
         val overtime: Boolean,
         val currentEntryDescription: String?,
-        val eodGoal: String
+        val eodGoal: String,
+        val originalEstimate: String,
+        val timeSpent: String
 )
