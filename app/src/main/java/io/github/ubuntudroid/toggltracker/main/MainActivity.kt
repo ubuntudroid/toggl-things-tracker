@@ -2,17 +2,18 @@ package io.github.ubuntudroid.toggltracker.main
 
 import android.app.Activity
 import android.databinding.DataBindingUtil
+import android.graphics.Color
 
 import android.os.Bundle
 import android.util.Log
+import com.google.android.things.contrib.driver.apa102.Apa102
 import com.google.android.things.contrib.driver.ht16k33.AlphanumericDisplay
 import com.google.android.things.contrib.driver.pwmspeaker.Speaker
+import com.google.android.things.contrib.driver.rainbowhat.RainbowHat
 import com.google.android.things.pio.Gpio
-import com.google.android.things.pio.PeripheralManager
 import dagger.android.AndroidInjection
 import io.github.ubuntudroid.toggltracker.R
 import io.github.ubuntudroid.toggltracker.databinding.ActivityMainBinding
-import io.github.ubuntudroid.toggltracker.iot.BoardDefaults
 import java.io.IOException
 import javax.inject.Inject
 
@@ -26,6 +27,7 @@ class MainActivity : Activity() {
     private var display: AlphanumericDisplay? = null
     private var speaker: Speaker? = null
     private var led: Gpio? = null
+    private var ledStrip: Apa102? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -34,7 +36,7 @@ class MainActivity : Activity() {
         binding.vm = mainViewModel
 
         display = try {
-            AlphanumericDisplay(BoardDefaults.i2cBus).apply {
+            RainbowHat.openDisplay().apply {
                 setEnabled(true)
                 clear()
             }
@@ -45,7 +47,7 @@ class MainActivity : Activity() {
         }
 
         speaker = try {
-            Speaker(BoardDefaults.speakerPwmPin)
+            RainbowHat.openPiezo()
                     .apply { stop() }
         } catch (e: IOException) {
             Log.e(TAG, "Error initialising speaker", e)
@@ -53,9 +55,8 @@ class MainActivity : Activity() {
             null
         }
 
-        val pioService = PeripheralManager.getInstance()
         led = try {
-            pioService.openGpio(BoardDefaults.ledGpioPin)
+            RainbowHat.openLedRed()
                     .apply { setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW) }
         } catch (e: IOException) {
             Log.e(TAG, "Error initialising LED", e)
@@ -63,7 +64,21 @@ class MainActivity : Activity() {
             null
         }
 
-        mainViewModel.start(display, speaker, led)
+        ledStrip = try {
+            RainbowHat.openLedStrip()
+                    .apply {
+                        brightness = 0
+                        val colors = IntArray(7)
+                        colors.fill(Color.TRANSPARENT) // color doesn't matter here
+                        write(colors)
+                    }
+        } catch (e: IOException) {
+            Log.e(TAG, "Error initialising LED strip", e)
+            Log.d(TAG, "Disabling LED strip")
+            null
+        }
+
+        mainViewModel.start(display, speaker, led, ledStrip)
     }
 
     override fun onDestroy() {

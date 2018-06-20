@@ -1,10 +1,11 @@
 package io.github.ubuntudroid.toggltracker.main
 
 import android.databinding.ObservableField
-import android.databinding.ObservableInt
+import android.graphics.Color
 import android.os.CountDownTimer
 import android.text.TextUtils
 import android.util.Log
+import com.google.android.things.contrib.driver.apa102.Apa102
 import com.google.android.things.contrib.driver.ht16k33.AlphanumericDisplay
 import com.google.android.things.contrib.driver.pwmspeaker.Speaker
 import com.google.android.things.pio.Gpio
@@ -21,11 +22,14 @@ private const val WORK_DAY_HOURS = 8
 private const val REFRESH_RATE_MS = 60*1000L
 private const val TAG = "MainViewModel"
 private val issueIdRegex = """((?<!([A-Za-z]{1,10})-?)[A-Z]+-\d+)""".toRegex()
+private const val LED_COUNT = 7
 
 class MainViewModel @Inject constructor(
         private val togglRepository: TogglRepository,
         private val jiraRepository: JiraRepository
 ) {
+
+    private val LIGHT_GREEN = Color.parseColor("lime")
 
     var currentEntry: ObservableField<String> = ObservableField("No tracking at the moment...")
     var weekTotal: ObservableField<String> = ObservableField("Retrieving week total...")
@@ -38,13 +42,15 @@ class MainViewModel @Inject constructor(
     private var display: AlphanumericDisplay? = null
     private var speaker: Speaker? = null
     private var led: Gpio? = null
+    private var ledStrip: Apa102? = null
 
     private var playedAlarm = false
 
-    fun start(display: AlphanumericDisplay?, speaker: Speaker?, led: Gpio?) {
+    fun start(display: AlphanumericDisplay?, speaker: Speaker?, led: Gpio?, ledStrip: Apa102?) {
         this.display = display
         this.speaker = speaker
         this.led = led
+        this.ledStrip = ledStrip
         refreshTimer.start()
     }
 
@@ -78,6 +84,28 @@ class MainViewModel @Inject constructor(
             } else {
                 led?.value = false
                 playedAlarm = false
+            }
+
+            if (update.originalEstimate == "00:00") {
+                ledStrip?.apply {
+                    // TODO refactor into helper class and also use in MainActivity
+                    brightness = 0
+                    val colors = IntArray(LED_COUNT)
+                    colors.fill(Color.TRANSPARENT) // color doesn't matter, we just need to write
+                    write(colors)
+                }
+            } else {
+                ledStrip?.apply {
+                    // TODO refactor into helper class
+                    brightness = 1
+                    val colors = IntArray(LED_COUNT)
+                    val progressLedIndex = Math.min(Math.round(LED_COUNT * update.currentCompletionRatio), LED_COUNT)
+                    colors.fill(LIGHT_GREEN, 0, progressLedIndex)
+                    if (progressLedIndex < LED_COUNT) {
+                        colors.fill(Color.TRANSPARENT, progressLedIndex, LED_COUNT)
+                    }
+                    write(colors)
+                }
             }
 
             if (!TextUtils.isEmpty(update.currentEntryDescription)) {
@@ -116,18 +144,18 @@ class MainViewModel @Inject constructor(
         val issueId = issueIdRegex.find(currentTimeEntry.data?.description.toString())
 
         val currentIssue = issueId?.let { jiraRepository.getIssue(it.value).await() }
-        timeSpent += currentIssue?.fields?.aggregatetimespent ?: 0
+        val aggregateTimeSpent = currentIssue?.fields?.aggregatetimespent?.toLong() ?: 0L
+        val aggregateTimeOriginalEstimate = currentIssue?.fields?.aggregatetimeoriginalestimate?.toLong() ?: 0L
+
+        timeSpent += aggregateTimeSpent
 
         val totalGrandTodayHours = TimeUnit.MILLISECONDS.toHours(totalGrandToday)
         val totalGrandTodayMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrandToday) % 60
         val totalGrandWeekHours = TimeUnit.MILLISECONDS.toHours(totalGrandWeek)
         val totalGrandWeekMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrandWeek) % 60
-        val currentIssueEstimatedHours = currentIssue?.fields?.aggregatetimeoriginalestimate?.toLong()?.let {
-            TimeUnit.SECONDS.toHours(it)
-        } ?: 0
-        val currentIssueEstimatedMinutes = currentIssue?.fields?.aggregatetimeoriginalestimate?.toLong()?.let {
-            TimeUnit.SECONDS.toMinutes(it) % 60
-        } ?: 0
+        val currentCompletionRatio = aggregateTimeSpent / aggregateTimeOriginalEstimate.toFloat()
+        val currentIssueEstimatedHours = TimeUnit.SECONDS.toHours(aggregateTimeOriginalEstimate)
+        val currentIssueEstimatedMinutes = TimeUnit.SECONDS.toMinutes(aggregateTimeOriginalEstimate) % 60
 
         val currentIssueSpentHours = TimeUnit.SECONDS.toHours(timeSpent)
         val currentIssueSpentMinutes = TimeUnit.SECONDS.toMinutes(timeSpent) % 60
@@ -139,7 +167,8 @@ class MainViewModel @Inject constructor(
                 currentTimeEntry.data?.description,
                 getEodGoal(),
                 String.format("%02d:%02d", currentIssueEstimatedHours, currentIssueEstimatedMinutes),
-                String.format("%02d:%02d", currentIssueSpentHours, currentIssueSpentMinutes)
+                String.format("%02d:%02d", currentIssueSpentHours, currentIssueSpentMinutes),
+                currentCompletionRatio
         )
     }
 
@@ -198,5 +227,6 @@ private data class Update(
         val currentEntryDescription: String?,
         val eodGoal: String,
         val originalEstimate: String,
-        val timeSpent: String
+        val timeSpent: String,
+        val currentCompletionRatio: Float
 )

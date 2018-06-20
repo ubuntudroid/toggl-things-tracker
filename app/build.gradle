@@ -53,12 +53,7 @@ dependencies {
 
     def androidThingsVersion = '1.0'
     compileOnly "com.google.android.things:androidthings:$androidThingsVersion"
-    implementation("com.google.android.things.contrib:driver-ht16k33:$androidThingsVersion") {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    }
-    implementation("com.google.android.things.contrib:driver-pwmspeaker:$androidThingsVersion") {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    }
+    implementation 'com.google.android.things.contrib:driver-rainbowhat:1.0'
 
     def retrofitVersion = '2.4.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
