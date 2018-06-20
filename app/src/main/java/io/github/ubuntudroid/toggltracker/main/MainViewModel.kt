@@ -153,7 +153,7 @@ class MainViewModel @Inject constructor(
         val totalGrandTodayMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrandToday) % 60
         val totalGrandWeekHours = TimeUnit.MILLISECONDS.toHours(totalGrandWeek)
         val totalGrandWeekMinutes = TimeUnit.MILLISECONDS.toMinutes(totalGrandWeek) % 60
-        val currentCompletionRatio = aggregateTimeSpent / aggregateTimeOriginalEstimate.toFloat()
+        val currentCompletionRatio = timeSpent / aggregateTimeOriginalEstimate.toFloat()
         val currentIssueEstimatedHours = TimeUnit.SECONDS.toHours(aggregateTimeOriginalEstimate)
         val currentIssueEstimatedMinutes = TimeUnit.SECONDS.toMinutes(aggregateTimeOriginalEstimate) % 60
 
