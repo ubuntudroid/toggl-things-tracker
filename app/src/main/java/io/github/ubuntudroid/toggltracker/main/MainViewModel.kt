@@ -133,7 +133,7 @@ class MainViewModel @Inject constructor(
         val currentIssueSpentMinutes = TimeUnit.SECONDS.toMinutes(timeSpent) % 60
 
         return Update(
-                String.format("%02d:%02d", totalGrandTodayHours, totalGrandTodayMinutes),
+                String.format("%02d.%02d", totalGrandTodayHours, totalGrandTodayMinutes),
                 String.format("%02d:%02d", totalGrandWeekHours, totalGrandWeekMinutes),
                 totalGrandTodayHours >= WORK_DAY_HOURS,
                 currentTimeEntry.data?.description,
