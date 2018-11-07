@@ -1,7 +1,7 @@
 package io.github.ubuntudroid.toggltracker.network.toggl
 
 import io.github.ubuntudroid.toggltracker.network.toggl.model.Summary
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.Deferred
 import retrofit2.http.GET
 import retrofit2.http.Query
 

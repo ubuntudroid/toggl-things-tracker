@@ -1,6 +1,6 @@
 package io.github.ubuntudroid.toggltracker.di
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import io.github.ubuntudroid.toggltracker.BuildConfig

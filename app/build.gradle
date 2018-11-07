@@ -6,6 +6,10 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
+kapt {
+    correctErrorTypes true
+}
+
 android {
     compileSdkVersion 27
     defaultConfig {
@@ -35,12 +39,6 @@ android {
     }
 }
 
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
@@ -49,7 +47,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.android.support:support-annotations:27.1.1'
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    kapt "androidx.databinding:databinding-compiler:$android_gradle_plugin_version"
 
     def androidThingsVersion = '1.0'
     compileOnly "com.google.android.things:androidthings:$androidThingsVersion"
@@ -59,7 +56,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
-    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-experimental-adapter:1.0.0'
+    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
 
     def daggerVersion = '2.16'
     implementation "com.google.dagger:dagger-android:$daggerVersion"

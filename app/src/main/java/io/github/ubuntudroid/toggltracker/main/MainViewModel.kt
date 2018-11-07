@@ -11,7 +11,7 @@ import com.google.android.things.contrib.driver.pwmspeaker.Speaker
 import com.google.android.things.pio.Gpio
 import io.github.ubuntudroid.toggltracker.JiraRepository
 import io.github.ubuntudroid.toggltracker.TogglRepository
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.io.IOException
 import java.util.*
 import java.util.Calendar.*

@@ -4,7 +4,7 @@ import io.github.ubuntudroid.toggltracker.network.toggl.model.Summary
 import io.github.ubuntudroid.toggltracker.network.toggl.TogglReportService
 import io.github.ubuntudroid.toggltracker.network.toggl.TogglTimeEntriesService
 import io.github.ubuntudroid.toggltracker.network.toggl.model.TimeEntry
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.Deferred
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
