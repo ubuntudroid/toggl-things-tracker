@@ -193,14 +193,19 @@ class MainViewModel @Inject constructor(
     private fun playChime() {
         speaker?.apply {
             launch {
-                val chime = arrayOf(415.30, 329.63, 369.99, 246.94, 246.94, 369.99, 415.30, 329.63)
-                chime.forEach {
-                    play(it)
-                    delay(400)
-                }
-                stop()
+                playChime(arrayOf(415.30, 329.63, 369.99, 246.94))
+                delay(400)
+                playChime(arrayOf(246.94, 369.99, 415.30, 329.63))
             }
         }
+    }
+
+    private suspend fun Speaker.playChime(chime: Array<Double>) {
+        chime.forEach {
+            play(it)
+            delay(400)
+        }
+        stop()
     }
 
     inner class RefreshTimer : CountDownTimer(Long.MAX_VALUE, REFRESH_RATE_MS) {
